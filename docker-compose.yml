@@ -1,0 +1,41 @@
+  version: '3.8'
+
+  services:
+    mysql-produtos:
+      image: mysql:8.0
+      container_name: mysql-produtos
+      restart: always
+      environment:
+        MYSQL_ROOT_PASSWORD: root
+        MYSQL_DATABASE: produtosdb
+        MYSQL_USER: fiap
+        MYSQL_PASSWORD: fiap123
+      ports:
+        - "3307:3306"  # Muda a porta do host de 3306 para 3307
+
+      volumes:
+        - mysql-data:/var/lib/mysql
+      networks:
+        - produtos-network
+
+    api-clientes:
+      container_name: api-clientes
+      build:
+        context: .
+        dockerfile: Dockerfile
+      depends_on:
+        - mysql-produtos
+      environment:
+        - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-produtos:3306/produtosdb
+        - SPRING_DATASOURCE_USERNAME=fiap
+        - SPRING_DATASOURCE_PASSWORD=fiap123
+      ports:
+        - "8080:8080"
+      networks:
+        - produtos-network
+
+  networks:
+    produtos-network:
+
+  volumes:
+    mysql-data:
